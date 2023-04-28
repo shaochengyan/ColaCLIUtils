@@ -32,7 +32,6 @@ api_key: <Your API Key>
 # 使用说明(quick start)(up to 2023年4月27日)
 ```shell
 conda activate you env
-
 python main.py
 ```
 You should see:

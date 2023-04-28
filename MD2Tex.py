@@ -49,12 +49,12 @@ class ColaMD2Tex:
         if is_copy:
             fp_full = os.path.join(self.dir_mdfile, filepath_rl)
             if not os.path.isfile(fp_full):
-                self.logger.info("No imag: {}".format(fp_full))
+                self.logger.info("No imag: {}".format(fp_full), is_print=True)
 
             else:
                 fp_save = os.path.join(self.dir_img_save, filename)  
                 info_img = "{} -> {}".format(fp_full, fp_save)
-                self.logger.info(info_img)
+                self.logger.info(info_img, is_print=True)
                 shutil.copyfile(fp_full, fp_save) 
 
         # text code
@@ -171,10 +171,10 @@ class ColaMD2Tex:
         # 检查剪贴板中是否包含图像
         if screenshot is not None and isinstance(screenshot, Image.Image):
             # 将图像保存到指定文件路径
-            self.logger.info("Save image to: {}".format(save_path))
+            self.logger.info("Save image to: {}".format(save_path), is_print=True)
             screenshot.save(save_path)
         else:
-            self.logger.info('clipboard does not contain effective image.')
+            self.logger.info('clipboard does not contain effective image.', is_print=True)
         tex_code = self.tex_gen.get_tex_img(filename)
         return tex_code
 
