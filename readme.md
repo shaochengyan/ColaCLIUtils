@@ -1,5 +1,20 @@
 Utils for use latex and latex with markdown. 
 
+# CLI(up to 2023年4月28日)
+
+**主界面**
+
+![image-20230428184657031](readme.assets/image-20230428184657031.png)
+
+**GPT聊天**
+
+![image-20230428184835539](readme.assets/image-20230428184835539.png)
+
+**Latex与Markdown的工具库**
+
+![image-20230428184904002](readme.assets/image-20230428184904002.png)
+
+
 # 日志(up to 2023年4月28日)
 2023年4月28日
 - 加入ChatGPT的选项，用户需要在config.yaml中写入以下内容
@@ -14,7 +29,7 @@ api_key: <Your API Key>
 # TODO
 - [ ] ...
 
-# 使用说明(quick start)
+# 使用说明(quick start)(up to 2023年4月27日)
 ```shell
 conda activate you env
 
