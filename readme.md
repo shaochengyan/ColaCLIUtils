@@ -16,7 +16,7 @@ CLI Utils for me, and you can DIY yours utools easyly via core module.
 
 
 # 日志(up to 2023年4月29日)
-2023年4月29日
+## 2023年4月29日
 - python的惰性导入技术 -> 加快程序启动速度
 - chatgpt的对话日志使用markdown语法 -> 方便后期查看、整理，并且以每一天为单独的日志文件
 - 修改输入输出io的显示方法，使用`ColaCMDIO`来控制输入输出格式
@@ -27,7 +27,8 @@ CLI Utils for me, and you can DIY yours utools easyly via core module.
     - TexMD: latex与markdown转换相关代码
   - main.py: 作为入口page
 - 添加使用说明书及其案例
-2023年4月28日
+
+## 2023年4月28日
 - 加入ChatGPT的选项，用户需要在config.yaml中写入以下内容
   - api key 会失效！ 需要进入 [web](https://platform.openai.com/account/api-keys) 重新申请!
 ``` yaml
