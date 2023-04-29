@@ -1,21 +1,32 @@
-Utils for use latex and latex with markdown. 
+CLI Utils for me, and you can DIY yours utools easyly via core module.
 
-# CLI(up to 2023年4月28日)
+# CLI(up to 2023年4月29日)
 
 **主界面**
 
-![image-20230428184657031](readme.assets/image-20230428184657031.png)
+![image-20230429190015871](readme.assets/image-20230429190015871.png)
 
 **GPT聊天**
 
-![image-20230428184835539](readme.assets/image-20230428184835539.png)
+![image-20230429190109136](readme.assets/image-20230429190109136.png)
 
 **Latex与Markdown的工具库**
 
-![image-20230428184904002](readme.assets/image-20230428184904002.png)
+![image-20230429190126801](readme.assets/image-20230429190126801.png)
 
 
-# 日志(up to 2023年4月28日)
+# 日志(up to 2023年4月29日)
+2023年4月29日
+- python的惰性导入技术 -> 加快程序启动速度
+- chatgpt的对话日志使用markdown语法 -> 方便后期查看、整理，并且以每一天为单独的日志文件
+- 修改输入输出io的显示方法，使用`ColaCMDIO`来控制输入输出格式
+- 修改整个项目的结构，具体说明如下：
+  - core: 即CMDMenu相关的模块，具体来说`ColaCMDMenuItem`是每一个选项集合的抽象，被称为menu，`MenuItemSet`是多个menu构成的集合，被称为page
+  - plugins: 就是为了实现不同的功能、page而分文件夹写的
+    - ChatPGT: chatgpt相关代码
+    - TexMD: latex与markdown转换相关代码
+  - main.py: 作为入口page
+- 添加使用说明书及其案例
 2023年4月28日
 - 加入ChatGPT的选项，用户需要在config.yaml中写入以下内容
   - api key 会失效！ 需要进入 [web](https://platform.openai.com/account/api-keys) 重新申请!
@@ -27,9 +38,93 @@ api_key: <Your API Key>
   - 每次构造一个目录时，需要继承于`MenuItemSet`，然后调用`add_menu`添加选项(TODO: 添加选项的语法)(可以调用多次), 然后需要重新实现`runloop`函数，其内部是while循环，不断读取键盘输入，然后作出对应响应
 
 # TODO
-- [ ] ...
+- [ ] 详细说明每一个page的使用手册 or -> 直接写成字符串，然后`help`命令打印出来吧！
 
-# 使用说明(quick start)(up to 2023年4月27日)
+
+# 使用说明(quick start)
+## 创建自己的模块
+**结果展示**
+
+![GIF 2023-4-29 18-20-37](readme.assets/GIF 2023-4-29 18-20-37.gif)
+
+下面给出具体代码
+
+**第一步: 先import core**
+
+```python
+import core
+```
+
+**第二步: 创建一个MyPage类，其继承自MenuItemSet**
+
+```
+
+
+class MyPage(core.MenuItemSet):
+    def __init__(self, username="cola") -> None:
+        super().__init__(username)
+```
+
+**第三步：写自己想要调用的函数**
+
+```
+class MyPage(core.MenuItemSet):
+    def __init__(self, username="cola") -> None:
+        super().__init__(username)
+
+
+    def _keyfunc_first(self):
+        print("keyfunc_fist")
+
+    def _keyfunc_second(self):
+        print("keyfunc_second")
+    
+```
+
+**第四步: 添加菜单选项** 通过add_menuKeyFunc函数添加菜单选项，其参数解释如下：
+
+- `add_menuAkeyfunc(self, name, **cmd_dict)`
+  - name: 菜单名
+  - cmd_dict: 即一个字典，key是用户要输入的命令，value由长度为2的list组成，第一个元素是字符串用于描述该选项功能，第二个元素是函数，对应于执行的函数，下面的代码的menu1通过kwargs来实现，第二种通过dict来实现，由于接口是通过**实现的，所以dict需要加上\*\*才能传入
+    - **注意** 若key是数字则需要加上`_`，后续会自动检测将其剔除
+
+```python
+
+
+class MyPage(core.MenuItemSet):
+    def __init__(self, username="cola") -> None:
+        super().__init__(username)
+
+        # menu 1
+        self.add_menuAkeyfunc(
+            name="First Menu", 
+            _1=["first choose", self._keyfunc_first], 
+            _2=["second choose", self._keyfunc_second]
+        ) 
+        
+        # menu 2
+        cmd_dict = { 
+            "_1": ["first choose", self._keyfunc_first], 
+            "_2": ["second choose", self._keyfunc_second]
+        }
+        self.add_menuAkeyfunc(
+            name="second Menu", 
+            **cmd_dict
+        ) 
+        ...
+```
+
+**运行**
+
+```python
+mypage = MyPage("genius")
+mypage.runloop()
+```
+
+
+
+## 使用本项目(up to 2023年4月27日)
+
 ```shell
 conda activate you env
 python main.py

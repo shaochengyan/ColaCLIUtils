@@ -1,6 +1,22 @@
 import os
 import logging
-import ColoryChar as ccc
+import datetime
+import utils.ColoryChar as ccc
+
+class ColaMarkdownLogger:
+    def __init__(self, name:str, dir_log="./ColaLog") -> None:
+        time_today = datetime.datetime.now().strftime('%Y-%m-%d')
+        self.filename = os.path.join(
+            dir_log, "log_{}_{}.md".format(name, time_today)
+        )
+    
+    def log(self, key, value):
+        """
+        不需要一直保存，否则意外退出才能保存好文件
+        """
+        message = "**{}**: {}\n\n".format(key, value)
+        with open(self.filename, "a") as fp:
+            fp.write(message)
 
 
 class ColaLogger(logging.Logger):
@@ -35,10 +51,16 @@ class ColaLogger(logging.Logger):
         return super().info(msg)
 
 if __name__ == "__main__":
-    logger = ColaLogger("实验测试")
-    logger.debug("Cola debug.")
-    logger.info("Cola info.")
+    if False:
+        logger = ColaLogger("实验测试")
+        logger.debug("Cola debug.")
+        logger.info("Cola info.")
+    
+    if True:
+        logger = ColaMarkdownLogger("test")
+        logger.log("cola", "你好")
+        logger.log("gpt", "您好")
 
 """
-python ColaLogger.py
+python -m utils.ColaLogger
 """

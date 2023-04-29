@@ -11,6 +11,7 @@ UNDERLINE = '\033[4m'
 # color
 GREEN = "\033[32m"
 RED = "\033[31m"
+YELLOW = "\033[33m"
 BLUE = "\033[34m"
 PURPLE = "\033[35m"
 CYAN = "\033[36m"

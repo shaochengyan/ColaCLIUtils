@@ -1,4 +1,8 @@
 config.yaml
-test*.py
+test*
 ColaLog/
 *.ipynb
+run.bat
+run_push_git.bat
+.vscode/
+__pycache__/

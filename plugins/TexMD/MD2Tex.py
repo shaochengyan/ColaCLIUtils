@@ -1,4 +1,3 @@
-import random
 import os
 import pyperclip
 import re
@@ -10,12 +9,11 @@ from PIL import ImageGrab
 from PIL import Image
 
 # cola import
-from TexUtils import ColaTexGenerator
-from ColaLogger import ColaLogger
-import ColoryChar as ccc
+from plugins.TexMD.TexUtils import ColaTexGenerator
+from utils.ColaLogger import ColaLogger
 
 class ColaMD2Tex:
-    def __init__(self, dir_mdfile, dir_img_save) -> None:
+    def __init__(self, dir_mdfile="./", dir_img_save="./") -> None:
         self.tex_gen = ColaTexGenerator()
         self.dir_mdfile = dir_mdfile  # dir of markdown file
         self.dir_img_save = dir_img_save
@@ -180,8 +178,9 @@ class ColaMD2Tex:
 
 if __name__=="__main__":
     mder = ColaMD2Tex("./", "./tmp")
-    mder.mdtext2tex("**cdas**")
+    rslt = mder.mdtext2tex("**cdas**")
+    print(rslt)
 
 """
-python -m MD2Tex
+python -m plugins.TexMD.MD2Tex
 """

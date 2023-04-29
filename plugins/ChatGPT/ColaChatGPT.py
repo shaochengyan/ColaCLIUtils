@@ -4,8 +4,9 @@ import json
 import os
 import pyperclip
 
-import ColoryChar as ccc
-from ColaLogger import ColaLogger
+import utils.ColoryChar as ccc
+from utils.ColaLogger import ColaMarkdownLogger
+from utils.ColaCMDIO import ColaCMDIO
 
 # load api key
 def get_api_key():
@@ -39,18 +40,17 @@ def new_chat():
     return chat
 
 def chat_with_gpt():
-    logger = ColaLogger("gpt", is_just_info=True)
+    logger = ColaMarkdownLogger("gpt")
     chat = new_chat()
+    cmdio = ColaCMDIO() 
     while True:
         if len(chat.messages) >= 11:
             print("New chat ...")
             chat = new_chat()
             
         # question
-        mesg = input("{}{}".format(
-            ccc.colory(chat.user, ccc.BOLD, ccc.GREEN),
-            ccc.colory("@win>> ", ccc.BOLD, ccc.BLUE) 
-        ))
+        mesg = cmdio.getline_user("cola_robot", "Input your question")
+
         
         if mesg == "exit":
             break
@@ -70,14 +70,14 @@ def chat_with_gpt():
         # ask -> ans -> show -> record
         chat.messages.append({"role": "user", "content": mesg})
         answer = chat.ask_gpt(mesg)
-        info_ans = "{}{}\n".format(
-            ccc.colory("ChatGPT>> ", ccc.PURPLE, ccc.BOLD), 
-            ccc.colory(answer, ccc.CYAN), 
-            )
-        logger.info("{}>> {}".format(chat.user, mesg))
-        logger.info(info_ans)
-        print(info_ans)
+        cmdio.out_pair("chatgpt", answer)
+        logger.log(chat.user, mesg)
+        logger.log("GPT", answer)
         chat.messages.append({"role": "assistant", "content": answer})
 
 if __name__ == '__main__':
     chat_with_gpt()
+
+"""
+python -m plugins.ChatGPT.ColaChatGPT
+"""
