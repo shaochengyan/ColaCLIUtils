@@ -1,5 +1,7 @@
 CLI Utils for me, and you can DIY yours utools easyly via core module.
 
+NOTE: 请越多 up 至 2023年4月29日及之后的内容
+
 # CLI(up to 2023年4月29日)
 
 **主界面**
