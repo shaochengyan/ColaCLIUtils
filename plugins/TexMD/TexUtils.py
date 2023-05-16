@@ -11,7 +11,7 @@ class ColaTexGenerator:
     \hspace*{{-{}cm}}\includegraphics[width={}\textwidth]{{{}}}
     \caption{{}}
     \label{{fig:{}}}
-\end{{figure}}""".format(hspace, width, imgname, ColaTexGenerator.generate_random_label(l=10)) 
+\end{{figure}}\n""".format(hspace, width, imgname, ColaTexGenerator.generate_random_label(l=10)) 
         return tex_code
 
     @staticmethod
@@ -40,7 +40,7 @@ class ColaTexGenerator:
         eq = self.clear_wrapper_const_char(eq)
         label = "eq:{}".format(ColaTexGenerator.generate_random_label())
         # 添加了eqaution环境的latex公式
-        rslt_eq = "\\begin{{{}}}\n{}\n {}\n\\end{{{}}}".format(
+        rslt_eq = "\\begin{{{}}}\n{}\n {}\n\\end{{{}}}\n".format(
             env,
             eq,
             "\\label{{{}}}".format(label) if is_label else "",
@@ -49,6 +49,13 @@ class ColaTexGenerator:
         # 用于引用该公式的ref公式
         rslt_ref_label = "式$\\ref{{{}}}$".format(label)
         return rslt_eq, rslt_ref_label
+    
+    def get_tex_code(self, code: str, type_code="python", caption=""):
+        # print(code)
+        rslt = """\\begin{{lstlisting}}[language={},caption={}]\n{}\n
+\end{{lstlisting}}\n""".format(type_code, caption, code)
+        # print(rslt)
+        return rslt
 
     @staticmethod
     def generate_random_label(l=5):

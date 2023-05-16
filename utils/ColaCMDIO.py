@@ -21,6 +21,12 @@ class ColaCMDIO:
             ccc.colory(" {}$ ".format(info) , ccc.BOLD, ccc.BLUE)
         )
         s = input(msg)
+
+        # process s
+        if "$cut" in s:
+            s = s[(s.rfind("$cut") + 4):]
+
+
         return s
     
     def out_info(self, info):

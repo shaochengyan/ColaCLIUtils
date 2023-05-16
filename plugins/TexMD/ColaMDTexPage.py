@@ -8,7 +8,7 @@ from .TexUtils import ColaTexGenerator
 
 class ColaMDTexPage(MenuItemSet):
     def __init__(self, **config_md2texer) -> None:
-        super().__init__()
+        super().__init__(is_page_dif_prefix=False)
         self.mder = ColaMD2Tex(**config_md2texer)
         self.texer = ColaTexGenerator()
 
@@ -17,7 +17,6 @@ class ColaMDTexPage(MenuItemSet):
         cmd_dict = {
             "1": ["Clipboard markdown to latex code", self._keyfunc_mdAtex], 
             "2": [" Input markdown specified file, and store it into latex code (todo) ", self._keyfunc_none], 
-            "chd": ["Change dir_md & dir_img_save ", self._keyfunc_chage_dir]
         }
         self.add_menuAkeyfunc(menu_name, **cmd_dict)
 
@@ -29,6 +28,13 @@ class ColaMDTexPage(MenuItemSet):
             _5=["Save image and copy texcode (image from clip) ", self._keyfunc_clipimagetotex]
         )
 
+        # meta page for change dir
+        self.add_menuAkeyfunc(
+            "META", 
+            is_norm_show=True, 
+            meta=["meta mode", self._keyfunc_meta_page]
+        )
+
         # help str
         helps = """\
 - help: help
@@ -36,7 +42,31 @@ class ColaMDTexPage(MenuItemSet):
 - exit: exit this page
 """
         self.add_helps(helps)
+    
+    def _keyfunc_meta_page(self):
+        meta_page = MenuItemSet(is_page_dif_prefix=False)
+        meta_page.add_menuAkeyfunc(
+            "Change Dir", 
+            _1=["dir_mdfile: {}".format(self.mder.dir_mdfile), self._keyfunc_chd_mdfile], 
+            _2=["dir_imae_save: {}".format(self.mder.dir_img_save), self._keyfunc_chd_img_save]
+        )
+        meta_page.runloop()
+        
 
+    
+    def _keyfunc_chd_mdfile(self):
+        path = input("Input dir_mdfile: ")
+        if os.path.isdir(path):
+            self.mder.dir_mdfile = path
+        else:
+            print("Path error.")
+
+    def _keyfunc_chd_img_save(self):
+        path = input("Input dir_img_save:")
+        if os.path.isdir(path):
+            self.mder.dir_img_save = path
+        else:
+            print("Path error.")
 
     def _keyfunc_mdAtex(self):
         s_md = pyperclip.paste()
@@ -57,22 +87,12 @@ class ColaMDTexPage(MenuItemSet):
         texcode = self.mder.save_img_create_texcode()    
         pyperclip.copy(texcode)
 
-    def _keyfunc_chage_dir(self):
-        path = input("Input dir_mdfile: ")
-        if os.path.isdir(path):
-            self.mder.dir_mdfile = path
-        else:
-            print("Path error.")
-        path = input("Input dir_img_save:")
-        if os.path.isdir(path):
-            self.mder.dir_img_save = path
-        else:
-            print("Path error.")
+
 
 if __name__=="__main__":
     menu = ColaMDTexPage()
     menu.runloop()
 
 """
-python -m plugins.TexMD.MenuMDTex
+python -m plugins.TexMD.ColaMDTexPage
 """

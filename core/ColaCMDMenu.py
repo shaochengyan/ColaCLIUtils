@@ -65,14 +65,16 @@ class ColaCMDMenuItem:
 Page -> a set of Menu item 
 """
 class MenuItemSet:
-    def __init__(self, username="cola") -> None:
+    def __init__(self, username="cola", is_page_dif_prefix=True) -> None:
         self.menus = []
+        self.menus_is_show = []
         self.helps = """\
 - exit: exit this page.
 - help: show help document.
 - cls: clear terminal and show page.
-- enter: show page.
+- s: show page.
 """
+        self.is_page_dif_prefix = is_page_dif_prefix
         self.username = username
         self.cmdio = ColaCMDIO()
 
@@ -91,7 +93,10 @@ class MenuItemSet:
 
         assert len(key) < 10, "Length of key less than 10." 
 
-        return 'abcdefghijk'[len(self.menus)] + key
+        if self.is_page_dif_prefix:
+            return 'abcdefghijklmnopqrstuvwxyz'[len(self.menus)] + key
+        else:
+            return key
 
     def process_cmd_dict(self, **cmd_dict):
         dict_new = dict()
@@ -100,17 +105,19 @@ class MenuItemSet:
             dict_new[key_new] = value 
         return dict_new
 
-    def add_menuAkeyfunc(self, name, **cmd_dict):
+    def add_menuAkeyfunc(self, name, is_norm_show=True, **cmd_dict):
         """
         添加key: [description, keyfunction]
         """
         cmd_dict = self.process_cmd_dict(**cmd_dict)
         self.menus.append(
             ColaCMDMenuItem(name, **cmd_dict))
+        self.menus_is_show.append(is_norm_show)
 
     def show(self):
-        for menu in self.menus:
-            print(menu)
+        for i, menu in enumerate(self.menus):
+            if self.menus_is_show[i]:
+                print(menu)
         print("")
     
     def getkey(self):
@@ -129,6 +136,7 @@ class MenuItemSet:
             if ret:
                 if ret == 2:
                     self.show()
+                self.cmdio.out_info("DONE")
                 return True
         return False
     
@@ -141,6 +149,9 @@ class MenuItemSet:
             self.show()
             return True
         elif key == "":
+            # self.show()
+            return True
+        elif key == "s":
             self.show()
             return True
         # not right

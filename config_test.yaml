@@ -1,0 +1,38 @@
+config_path: "D:\\Coding\\ColaCLIUtils\\config.yaml"
+global:
+  test: "test"
+
+TexMD:
+  dir_mdfile: "D:/ColaDatabase/ColaBook/tmp_md"
+  dir_img_save: "D:/ColaDatabase/ColaBook/cola_figures"
+
+ChatGPT:
+  api_key: "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"
+
+Session:
+  GP:
+    description: "毕业设计的描述"
+    session_dict:
+      explorer: 
+        - "D:\\DData\\1.StudyMain\\5.GraduationProject\\Thesis"
+      code:
+        - "D:\\DData\\1.StudyMain\\5.GraduationProject\\Thesis\\code_latex3"
+  pyc:
+    description: "阅读 python cookbook (打开对应文件夹)"
+    session_dict:
+      explorer:
+        - "D:\\DData\\1.StudyMain\\9.Python"
+  bg:
+    description: "一天的开始"
+    session_dict:
+      start: 
+        - "C:\\Users\\HP\\AppData\\Local\\Obsidian\\Obsidian.exe"
+        - "D:\\ColaDatabase\\Blogs\\月记录(XMIND)\\2023_03.xmind"
+  cb:
+    description: "ColaCookbook"
+    session_dict:
+      start: 
+        - "D:\\ColaDatabase\\ColaBook"
+      "D:\\Application\\Latex\\TexStudio\\texstudio.exe":
+        - "D:\\ColaDatabase\\ColaBook\\ColaNote.tex"
+    

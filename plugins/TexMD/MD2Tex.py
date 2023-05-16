@@ -28,27 +28,39 @@ class ColaMD2Tex:
         return line[:2] == "$$" 
     
     @staticmethod
+    def check_is_code(line: str):
+        return line[:3] == "```"
+    
+    @staticmethod
     def check_is_quote(line: str):
         return line[:4] == "> - "  # must list in quote
     
+    def get_image_path(self, line:str):
+        img_path = re.findall("\!\[.*\]\((.*)\)", line)
+        if len(img_path) == 0:
+            img_path = re.findall(r"<img src=\"(.*?)\".*/>", line)
+        
+        if len(img_path) > 0:
+            return img_path[0]
+        else:
+            return ""
+
+
     def process_img_line(self, line: str, is_copy=False):
         # var
-        pattern = re.compile("\!\[.*\]\((.*)\)")
-        img_path = pattern.findall(line)
+        img_path = self.get_image_path(line)   
         if len(img_path) == 0:
             return line  # not img -> return origin line
 
         # copy img
         if is_copy:
             assert os.path.isdir(self.dir_img_save)
-        filepath_rl = img_path[0]
-        filename = os.path.basename(filepath_rl)
+        fp_full = img_path if os.path.isfile(img_path) else os.path.join(self.dir_mdfile, img_path)
+        filename = os.path.basename(img_path)
         info_img = ""
         if is_copy:
-            fp_full = os.path.join(self.dir_mdfile, filepath_rl)
             if not os.path.isfile(fp_full):
                 self.logger.info("No imag: {}".format(fp_full), is_print=True)
-
             else:
                 fp_save = os.path.join(self.dir_img_save, filename)  
                 info_img = "{} -> {}".format(fp_full, fp_save)
@@ -73,21 +85,24 @@ class ColaMD2Tex:
         line = re.sub(pattern, r"\\" + env_start_bf + r"{\1}", line)
 
         # -> to $rightarrow$
-        line = re.sub("->", "$rightarrow$", line)
-        line = re.sub("<-", "$leftarrow$", line)
+        line = re.sub("->", r"$\\rightarrow$", line)
+        line = re.sub("<-", r"$\\leftarrow$", line)
 
         return line
 
     def process_quote_lines(self, lines):
         lines = [line[2:] for line in lines]
-        return self.process_list_lines(lines, env="colaQuote")
+        lines_new = ["\t\\item " + self.proces_line_base(line[2:], env_start_bf="bluetextbf") for line in lines]
+        rslt = "\\begin{{{}}}\n{}\n\\end{{{}}}\n".format("colaQuote", "\n".join(lines_new), "colaQuote")
+        return rslt
+    
 
-    def process_list_lines(self, lines, env="enumerate"):
+    def process_enumerate(self, lines):
         """
         lines: list of str
         """
         lines_new = ["\t\\item " + self.proces_line_base(line[2:], env_start_bf="bluetextbf") for line in lines]
-        rslt = "\\begin{{{}}}\n{}\n\\end{{{}}}".format(env, "\n".join(lines_new), env)
+        rslt = "\\begin{{enumerate}}[leftmargin=4em,itemindent=1em, label=$\\bullet$]\n{}\n\\end{{enumerate}}".format("\n".join(lines_new))
         return rslt
 
     @staticmethod
@@ -119,7 +134,7 @@ class ColaMD2Tex:
             # 1. process list
             if self.check_is_list(lines[i]):
                 end_list = self._get_right(lines, end=i + 1, check_func=self.check_is_list, N=N)
-                rslt_tex = self.process_list_lines(lines[i:end_list], env="enumerate")
+                rslt_tex = self.process_enumerate(lines[i:end_list])
                 rslts.append(rslt_tex)
                 i = end_list
                 continue
@@ -143,6 +158,19 @@ class ColaMD2Tex:
                 rslts.append(eq_tex)
                 i = end_dollar + 1  # pass last $$
                 continue
+            
+            # 2+2. process code
+            if self.check_is_code(lines[i]):
+                type_code = lines[i][3:]
+                end_code = i + 1
+                while end_code < N and not self.check_is_code(lines[end_code]):
+                    end_code += 1
+                # [i, end_code)  
+                code_tex = "\n".join(lines[i+1:end_code])
+                code_tex = self.tex_gen.get_tex_code(code_tex, type_code=type_code)
+                rslts.append(code_tex)
+                i = end_code + 1  # pass last ```
+                continue
 
             line = lines[i]
             # 3. process img
@@ -153,7 +181,7 @@ class ColaMD2Tex:
             rslts.append(line)
 
             i += 1
-        rslt_tex = "\n\n".join(rslts)
+        rslt_tex = "\n".join(rslts)
         if is_clip:
             pyperclip.copy(rslt_tex)
         return rslt_tex
@@ -176,10 +204,53 @@ class ColaMD2Tex:
         tex_code = self.tex_gen.get_tex_img(filename)
         return tex_code
 
+smd = r"""
+
+### **OverLook** 
+
+**一句话** 设计了一个FPN网络来从点云中提取关键点及其显著性，并设计了训练框架使得该网络的关键点具备重复性(点越显著，则重复性越高)
+
+### **训练流程**
+
+![image-20221219143817930](ColaNote_USIP(无监督点云关键点检测).assets/image-20221219143817930.png)
+
+- 分别将原始点云和变换后的点云输入FPN -> M个关键点及其不确定度
+- **$\mathcal{L}_c $(probabilistic chamfer loss)** 最小化两个关键点集对应点之间的距离
+- **$\mathcal{L}_p$(Point-to-Point Loss)** 用于最小化估计的关键点与其周围邻居的距离(限制关键点不能超出点云)
+
+### **FPN网络架构**
+
+FPS采样M个点S -> 利用point-to-node获得Si周围ki个点(每个group大小不同) -> 规范化每一个group(去中心 -> 簇与平移变换无关) -> 送入PointNet-like网络获得groupSm的特征向量Gm -> 基于kNN的grouping layer作用在特征向量上获得层次信息的集成 -> M个特征向量 -> 送入MLP估计出M个关键点和不确定度 -> 去规范化(给每一关键点加上对应的平移向量) -> 输出坐标点以及不确定度 $\{(Q, \Sigma)\}$
+
+<img src="D:/DData/1.StudyMain/5.GraduationProject/ColaModelPCR/USIP/ColaNote_USIP(无监督点云关键点检测).assets/image-20221219143817930.png" alt="image-20221219152758762" style="zoom: 80%;" />
+---------
+
+```python
+import os
+import time
+import pyperclip
+
+from core.ColaCMDMenu import MenuItemSet
+from .MD2Tex import ColaMD2Tex
+from .TexUtils import ColaTexGenerator
+
+class ColaMDTexPage(MenuItemSet):
+    def __init__(self, **config_md2texer) -> None:
+        super().__init__(is_page_dif_prefix=False)
+        self.mder = ColaMD2Tex(**config_md2texer)
+        self.texer = ColaTexGenerator()
+```
+> - **NOTE** 测试
+> - **NOTE** 测试
+
+- **NOTE** 测试
+- **NOTE** 测试
+"""
+
 if __name__=="__main__":
     mder = ColaMD2Tex("./", "./tmp")
-    rslt = mder.mdtext2tex("**cdas**")
-    print(rslt)
+    rslt = mder.mdtext2tex(smd, is_clip=True)
+    # print(rslt)
 
 """
 python -m plugins.TexMD.MD2Tex
